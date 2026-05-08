@@ -633,6 +633,201 @@ body {
   opacity: 0.4;
 }
 
+/* ─── INSTRUCTORS ─── */
+.instructor-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 14px;
+  transition: all 0.3s ease;
+}
+
+.instructor-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+}
+
+.instructor-avatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-glow);
+  border: 1px solid var(--border-accent);
+  border-radius: 16px;
+  font-size: 28px;
+}
+
+.instructor-info {
+  flex: 1;
+}
+
+.instructor-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.instructor-role {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.instructor-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+/* ─── EDIT MODE ─── */
+.edit-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-toggle button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: var(--accent);
+  color: #0a0a0f;
+}
+
+.btn-edit:hover { transform: scale(1.05); }
+
+.btn-edit.active {
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-save {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  border: 1px solid var(--border) !important;
+}
+
+.btn-save:hover { background: rgba(255,255,255,0.15); }
+
+/* Editable highlight */
+body.editing [contenteditable="true"] {
+  outline: 1px dashed rgba(240,192,64,0.3);
+  outline-offset: 4px;
+  border-radius: 4px;
+  cursor: text;
+  transition: outline-color 0.2s;
+}
+
+body.editing [contenteditable="true"]:hover {
+  outline-color: rgba(240,192,64,0.6);
+}
+
+body.editing [contenteditable="true"]:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  background: rgba(240,192,64,0.04);
+}
+
+/* Rich toolbar */
+.rich-toolbar {
+  position: fixed;
+  top: 60px;
+  right: 16px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  display: none;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+body.editing .rich-toolbar { display: flex; }
+
+.rich-toolbar button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-body);
+}
+
+.rich-toolbar button:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.rich-toolbar button.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-color: var(--border-accent);
+}
+
+.rich-toolbar .sep {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  align-self: center;
+  margin: 0 2px;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  color: var(--accent);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 300;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ─── ANIMATIONS ─── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -673,6 +868,31 @@ body {
 </style>
 </head>
 <body>
+
+<!-- ═══ EDIT CONTROLS ═══ -->
+<div class="edit-toggle">
+  <button class="btn-edit" id="editBtn" onclick="toggleEdit()">✏️ 편집</button>
+  <button class="btn-save" id="saveBtn" onclick="saveHTML()" style="display:none;">📥 다운로드</button>
+</div>
+
+<div class="rich-toolbar" id="toolbar">
+  <button onclick="execCmd('bold')" title="굵게"><b>B</b></button>
+  <button onclick="execCmd('italic')" title="기울임"><i>I</i></button>
+  <button onclick="execCmd('underline')" title="밑줄"><u>U</u></button>
+  <button onclick="execCmd('strikeThrough')" title="취소선"><s>S</s></button>
+  <div class="sep"></div>
+  <button onclick="execCmd('fontSize','5')" title="글자 크게">A+</button>
+  <button onclick="execCmd('fontSize','2')" title="글자 작게">A-</button>
+  <div class="sep"></div>
+  <button onclick="setColor('#f0c040')" title="골드" style="color:#f0c040;">●</button>
+  <button onclick="setColor('#ff4d4f')" title="레드" style="color:#ff4d4f;">●</button>
+  <button onclick="setColor('#f5f5f7')" title="화이트" style="color:#f5f5f7;">●</button>
+  <button onclick="setColor('#a0a0b0')" title="그레이" style="color:#a0a0b0;">●</button>
+  <div class="sep"></div>
+  <button onclick="execCmd('removeFormat')" title="서식 제거">⌫</button>
+</div>
+
+<div class="toast" id="toast">저장 완료!</div>
 
 <!-- ═══════════ HERO ═══════════ -->
 <section class="hero">
@@ -858,13 +1078,6 @@ body {
         </div>
       </div>
       <div class="benefit-item">
-        <div class="benefit-icon">🗺️</div>
-        <div class="benefit-text">
-          <h4>교육 이후 자동화 로드맵</h4>
-          <p>수업이 끝나도 혼자 실행할 수 있도록 컨설팅과 자동화 로드맵을 함께 설계합니다.</p>
-        </div>
-      </div>
-      <div class="benefit-item">
         <div class="benefit-icon">🤝</div>
         <div class="benefit-text">
           <h4>1기 수강생 전용 커뮤니티</h4>
@@ -875,33 +1088,7 @@ body {
   </div>
 </section>
 
-<!-- ═══════════ REVIEWS ═══════════ -->
-<section class="section">
-  <div class="container">
-    <div class="fade-in">
-      <span class="label">REVIEWS</span>
-      <h2 class="section-title">먼저 경험한 분들의 <em>후기</em></h2>
-    </div>
 
-    <div class="fade-in" style="margin-top: 28px;">
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"다양한 경험을 바탕으로 핵심만 추려 진행한 강의가 도움이 많이 되었습니다. AI 마케팅에 관한 시각이 넓어졌습니다."</div>
-        <div class="review-author">— boo**** · 수강생</div>
-      </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"콘텐츠 기획에 있어 시간을 줄이고 효과는 늘릴 수 있게 되었습니다. SNS 채널별 운영 기획까지 시원하게 알 수 있는 강의였습니다."</div>
-        <div class="review-author">— hhg**** · 수강생</div>
-      </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"AI가 중요해지는 시점에 중요한 부분을 잘 짚어주시는 것 같아요. AI 로직에 잘 노출되는 콘텐츠 만드는 방법을 배웠습니다."</div>
-        <div class="review-author">— wog**** · 수강생</div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ═══════════ PRICING ═══════════ -->
 <section class="section" id="pricing">
@@ -936,7 +1123,7 @@ body {
           </div>
         </div>
 
-        <a href="#" class="cta-btn">지금 바로 신청하기</a>
+        <a href="https://zeroclicklab.liveklass.com/classes/301938" target="_blank" class="cta-btn">지금 바로 신청하기</a>
         <p class="cta-sub">선착순 마감 · 마감 즉시 정가 인상</p>
 
         <div class="urgency-bar">
@@ -972,23 +1159,20 @@ body {
       <span style="text-decoration:line-through; font-size:12px;">550,000원</span>
       <strong>330,000원</strong>
     </div>
-    <a href="#pricing" class="sticky-btn">지금 신청하기 →</a>
+    <a href="https://zeroclicklab.liveklass.com/classes/301938" target="_blank" class="sticky-btn">지금 신청하기 →</a>
   </div>
 </div>
 
 <script>
-// Scroll-based fade-in
+// ─── Scroll fade-in ───
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
+    if (entry.isIntersecting) entry.target.classList.add('visible');
   });
 }, { threshold: 0.15 });
-
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-// Sticky CTA visibility
+// ─── Sticky CTA ───
 const stickyEl = document.getElementById('stickyCta');
 let ticking = false;
 window.addEventListener('scroll', () => {
@@ -1000,6 +1184,102 @@ window.addEventListener('scroll', () => {
     ticking = true;
   }
 });
+
+// ─── Edit Mode ───
+const EDITABLE_SELECTORS = [
+  '.hero h1', '.hero .subtitle', '.hero .badge',
+  '.hook-box p',
+  '.section-title', '.desc', '.label',
+  '.problem-card', '.strike-msg',
+  '.step-label', '.step-card h3', '.step-card .keyword', '.step-card p',
+  '.week-title', '.week-subtitle', '.week-body li',
+  '.benefit-text h4', '.benefit-text p',
+  '.instructor-name', '.instructor-role', '.instructor-desc',
+  '.pricing-card .original', '.pricing-card .price', '.pricing-card .discount-badge',
+  '.info-label', '.info-value',
+  '.cta-btn', '.cta-sub', '.urgency-bar',
+  '.footer p',
+  '.sticky-price', '.sticky-btn'
+].join(',');
+
+let isEditing = false;
+
+function toggleEdit() {
+  isEditing = !isEditing;
+  const btn = document.getElementById('editBtn');
+  const saveBtn = document.getElementById('saveBtn');
+
+  if (isEditing) {
+    document.body.classList.add('editing');
+    btn.textContent = '🔒 편집 종료';
+    btn.classList.add('active');
+    saveBtn.style.display = 'inline-block';
+    document.querySelectorAll(EDITABLE_SELECTORS).forEach(el => {
+      el.setAttribute('contenteditable', 'true');
+    });
+  } else {
+    document.body.classList.remove('editing');
+    btn.textContent = '✏️ 편집';
+    btn.classList.remove('active');
+    saveBtn.style.display = 'none';
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      el.removeAttribute('contenteditable');
+    });
+  }
+}
+
+// ─── Rich Text Commands ───
+function execCmd(cmd, val) {
+  document.execCommand(cmd, false, val || null);
+}
+
+function setColor(color) {
+  document.execCommand('foreColor', false, color);
+}
+
+// ─── Save as HTML file (download) ───
+function saveHTML() {
+  // 1. 편집 UI를 숨긴 클린 버전 만들기 (DOM 복제)
+  const clone = document.documentElement.cloneNode(true);
+
+  // 클론에서 편집 UI 제거
+  const removeSelectors = ['.edit-toggle', '.rich-toolbar', '.toast'];
+  removeSelectors.forEach(sel => {
+    const el = clone.querySelector(sel);
+    if (el) el.remove();
+  });
+
+  // contenteditable 속성 제거
+  clone.querySelectorAll('[contenteditable]').forEach(el => {
+    el.removeAttribute('contenteditable');
+  });
+
+  // editing 클래스 제거
+  const body = clone.querySelector('body');
+  if (body) body.classList.remove('editing');
+
+  // 2. HTML 생성 & 다운로드
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'geo-masterclass-landing.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  // 3. 토스트 (페이지 그대로 유지됨)
+  showToast('📥 파일 다운로드 완료! 편집을 계속할 수 있어요.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
 </script>
 
 </body>
